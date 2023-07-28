@@ -37,6 +37,7 @@ void RunRandomizeCheck() {
     if (S_Cam7) choices.InsertLast(CamChoice::Cam7);
     if (S_Cam7Drivable) choices.InsertLast(CamChoice::Cam7Drivable);
     if (S_CamBackwards) choices.InsertLast(CamChoice::CamBackwards);
+    if (choices.Length == 0) return;
     auto choiceIx = Math::Rand(0, choices.Length);
     auto choice = choices[choiceIx];
     SetCamChoice(choice);
@@ -44,7 +45,7 @@ void RunRandomizeCheck() {
 
 void SetCamChoice(CamChoice cam) {
     bool alt = cam == CamChoice::Cam1Alt || cam == CamChoice::Cam2Alt || cam == CamChoice::Cam3Alt;
-    bool drivable = cam != CamChoice::Cam7;
+    bool drivable = cam == CamChoice::Cam7Drivable;
     CameraType setTo = cam == CamChoice::Cam1 || cam == CamChoice::Cam1Alt
         ? CameraType::Cam1
         : cam == CamChoice::Cam2 || cam == CamChoice::Cam2Alt
@@ -61,4 +62,28 @@ void SetCamChoice(CamChoice cam) {
     SetAltCamFlag(app, alt);
     SetDrivableCamFlag(app, drivable);
     SetCamType(app, setTo);
+    if (setTo == CameraType::FreeCam) {
+        startnew(SetFreeCamEntityToPlayer);
+    }
+}
+
+CSmPlayer@ GetGUIPlayer(CGameCtnApp@ app) {
+    auto gt = GetGameTerminal(app);
+    if (gt is null) return null;
+    return cast<CSmPlayer>(gt.GUIPlayer);
+}
+
+uint16 playerVehicleEntityIdOffset = GetOffset("CSmPlayer", "SpawnableObjectModelIndex") - 0x20;
+
+uint GetPlayerEntityID(CSmPlayer@ player) {
+    if (player is null) return 0x0FF00000;
+    return Dev::GetOffsetUint32(player, playerVehicleEntityIdOffset);
+}
+
+void SetFreeCamEntityToPlayer() {
+    auto app = GetApp();
+    auto fc = GetFreeCamControls(app);
+    fc.m_Radius = Math::Rand(7.0, 50.0);
+    fc.m_Pitch = 0.5;
+    FreeCamSetTargetId(fc, GetPlayerEntityID(GetGUIPlayer(app)));
 }

@@ -8,6 +8,11 @@ class CameraStatus {
         this.currCam = currCam;
     }
     CameraStatus() {}
+
+    string ToString() const {
+        if (currCam == 0) return "None";
+        return tostring(CameraType(currCam)) + " [" + tostring(CGameItemModel::EnumDefaultCam(currCam)) + "]" + (isAlt ? " (alt)" : "") + (canDrive ? " (drivable)" : "");
+    }
 }
 
 CameraStatus@ GetCameraStatus() {
@@ -29,7 +34,7 @@ CGameTerminal@ GetGameTerminal(CGameCtnApp@ app) {
 void SetAltCamFlag(CGameCtnApp@ app, bool isAlt) {
     auto gt = GetGameTerminal(app);
     if (gt is null) return;
-    Dev::SetOffset(gt, 0x30, isAlt ? 0x1 : 0x0);
+    Dev::SetOffset(gt, 0x30, isAlt ? 0x0 : 0x1);
 }
 
 void SetDrivableCamFlag(CGameCtnApp@ app, bool canDrive) {
@@ -54,6 +59,36 @@ enum CameraType {
     // same repeated up to 0x1d
     // Intro1dMb = 0x1d,
 }
+
+// enum CGameItemModel::EnumDefaultCam {
+//     None = 0,
+//     Default = 1,
+//     Free = 2,
+//     Spectator = 3,
+//     Behind = 4,
+//     Close = 5,
+//     Internal = 6,
+//     Helico = 7,
+//     FirstPerson = 8,
+//     ThirdPerson = 9,
+//     ThirdPersonTop = 10,
+//     Iso = 11,
+//     IsoFocus = 12,
+//     Dia3 = 13,
+//     Board = 14,
+//     MonoScreen = 15,
+//     Rear = 16,
+//     Debug = 17,
+//     _1 = 18, // 1
+//     _2 = 19, // 2
+//     _3 = 20, // 3
+//     Alt1 = 21,
+//     Orbital = 22,
+//     Decals = 23,
+//     Snap = 24,
+//     NearOpponents = 25,
+//     MapThumbnail = 26,
+// }
 
 void SetCamType(CGameCtnApp@ app, CameraType cam) {
     auto gt = GetGameTerminal(app);
