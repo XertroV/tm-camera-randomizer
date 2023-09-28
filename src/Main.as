@@ -83,7 +83,16 @@ uint GetPlayerEntityID(CSmPlayer@ player) {
 void SetFreeCamEntityToPlayer() {
     auto app = GetApp();
     auto fc = GetFreeCamControls(app);
+    if (fc is null) return;
     fc.m_Radius = Math::Rand(7.0, 50.0);
     fc.m_Pitch = 0.5;
-    FreeCamSetTargetId(fc, GetPlayerEntityID(GetGUIPlayer(app)));
+    auto player = GetGUIPlayer(app);
+    if (player is null) return;
+    auto playerEntId = GetPlayerEntityID(player);
+    // default/empty vis id
+    if (playerEntId == 0x0FF00000) return;
+    // player vis IDs are always 0x0200????
+    if (playerEntId & 0x02F00000 == 0x02000000) {
+        FreeCamSetTargetId(fc, playerEntId);
+    }
 }
